@@ -3,293 +3,328 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kirim Pesan WhatsApp</title>
+    <title>Permintaan CT</title>
+    
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --primary-bg: #f9f9f9;
+            --secondary-bg: #ffffff;
+            --text-color: #333333;
+            --accent-gold: #b8860b; /* DarkGoldenrod */
+            --button-dark: #222222;
+            --button-dark-hover: #000000;
+            --whatsapp-green: #25D366;
+            --whatsapp-green-hover: #128C7E;
+            --border-color: #e0e0e0;
+            --shadow-light: rgba(0, 0, 0, 0.08);
+            --shadow-medium: rgba(0, 0, 0, 0.15);
+        }
+
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            padding: 20px;
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #f0f0f0 0%, #e0e0e0 100%);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            line-height: 1.6;
         }
+
         .container {
-            max-width: 600px;
-            margin: auto;
-            background: white;
-            padding: 20px;
-            border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            background-color: var(--secondary-bg);
+            padding: 35px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px var(--shadow-medium);
+            width: 90%;
+            max-width: 550px;
+            text-align: center;
+            position: relative;
+            overflow: hidden; 
         }
+
         h1 {
-            text-align: center;
-            color: #333;
+            color: var(--button-dark);
+            margin-bottom: 30px;
+            font-weight: 600;
+            font-size: 2.2em;
+            letter-spacing: 0.5px;
+            position: relative;
         }
+
+        h1::after {
+            content: '';
+            display: block;
+            width: 60px;
+            height: 3px;
+            background-color: var(--accent-gold);
+            margin: 10px auto 0;
+            border-radius: 5px;
+        }
+
         .upload-area {
-            border: 2px dashed #ccc;
-            border-radius: 5px;
-            padding: 20px;
-            text-align: center;
-            margin: 20px 0;
+            border: 2px dashed var(--border-color);
+            padding: 50px 20px;
+            border-radius: 10px;
             cursor: pointer;
-            transition: border-color 0.3s;
+            transition: all 0.4s ease-in-out;
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 150px;
         }
+
         .upload-area:hover {
-            border-color: #25D366;
+            background-color: var(--primary-bg);
+            border-color: var(--accent-gold);
+            box-shadow: 0 5px 15px var(--shadow-light);
         }
-        .upload-area.dragover {
-            border-color: #25D366;
-            background-color: #f0f8f0;
-        }
-        input[type="file"] {
-            display: none;
-        }
-        .preview-image {
-            max-width: 100%;
-            max-height: 300px;
-            margin: 10px 0;
-            border-radius: 5px;
-        }
-        .result-box {
-            background-color: #f9f9f9;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            padding: 15px;
-            margin: 15px 0;
-        }
-        .result-item {
-            margin: 10px 0;
-            padding: 8px;
-            background-color: white;
-            border-radius: 3px;
-        }
-        button {
-            width: 100%;
-            padding: 12px;
-            background-color: #25D366;
-            color: white;
+        
+        /* CSS ini yang membuat tombol rata tengah */
+        #upload-button {
+            background-color: var(--button-dark);
+            color: #fff;
             border: none;
-            border-radius: 5px;
+            padding: 15px 35px;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: 600;
             cursor: pointer;
-            font-size: 16px;
-            margin: 10px 0;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center; /* Rata tengah horizontal */
+            gap: 10px;
+            margin: 0 auto; /* Tambahan ini untuk rata tengah horizontal */
         }
-        button:hover {
-            background-color: #128C7E;
+
+        #upload-button:hover {
+            background-color: var(--button-dark-hover);
+            transform: translateY(-2px);
         }
-        button:disabled {
-            background-color: #ccc;
-            cursor: not-allowed;
+        
+        .camera-icon {
+            font-size: 1.5em;
+            line-height: 1; 
         }
-        .loading {
-            text-align: center;
-            color: #666;
-            font-style: italic;
+
+        .image-preview {
+            margin-top: 25px;
+            border: 1px solid var(--border-color);
+            padding: 15px;
+            border-radius: 10px;
+            position: relative;
+            background-color: var(--primary-bg);
+            box-shadow: 0 2px 8px var(--shadow-light);
         }
-        .error {
-            color: #d32f2f;
-            background-color: #ffebee;
-            padding: 10px;
-            border-radius: 5px;
-            margin: 10px 0;
+
+        #uploaded-image {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            display: block; 
+            margin: 0 auto;
         }
-        .success {
-            color: #388e3c;
-            background-color: #e8f5e8;
-            padding: 10px;
-            border-radius: 5px;
-            margin: 10px 0;
+
+        #ocr-status {
+            position: absolute;
+            top: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0, 0, 0, 0.75);
+            color: #fff;
+            padding: 8px 15px;
+            border-radius: 7px;
+            font-size: 0.9em;
+            font-weight: 400;
+            z-index: 10;
+            white-space: nowrap;
+            box-shadow: 0 2px 10px var(--shadow-medium);
+        }
+
+        .result-area {
+            margin-top: 25px;
+            padding: 20px;
+            background-color: var(--primary-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            box-shadow: 0 2px 8px var(--shadow-light);
+            display: none; 
+        }
+
+        .result-area h3 {
+            color: var(--button-dark);
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-weight: 600;
+            font-size: 1.4em;
+        }
+
+        #preview-text {
+            background-color: var(--secondary-bg);
+            padding: 20px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            white-space: pre-wrap;
+            text-align: left;
+            font-size: 0.95em;
+            color: var(--text-color);
+            word-break: break-word; 
+        }
+
+        #send-wa-button {
+            background-color: var(--whatsapp-green);
+            color: #fff;
+            border: none;
+            padding: 15px 35px;
+            border-radius: 8px;
+            font-size: 1.15em;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            box-shadow: 0 4px 10px rgba(37, 211, 102, 0.4);
+        }
+
+        #send-wa-button:hover {
+            background-color: var(--whatsapp-green-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(18, 140, 126, 0.5);
         }
     </style>
 </head>
 <body>
-
-<div class="container">
-    <h1>Request CT via Gambar</h1>
-    
-    <div class="upload-area" onclick="document.getElementById('fileInput').click()">
-        <p>Klik atau drag & drop gambar di sini</p>
-        <p style="font-size: 12px; color: #666;">Format: JPG, PNG, GIF (Max: 5MB)</p>
-    </div>
-    
-    <input type="file" id="fileInput" accept="image/*">
-    
-    <div id="imagePreview"></div>
-    <div id="loadingMessage"></div>
-    <div id="resultBox"></div>
-    
-    <button id="kirimBtn" onclick="kirimPesan()" disabled>Kirim Pesan WhatsApp</button>
-</div>
-
-<!-- Tesseract.js CDN -->
-<script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
-
-<script>
-    let noMeter = '';
-    let noG = '';
-    let extractedText = '';
-
-    // Setup drag and drop
-    const uploadArea = document.querySelector('.upload-area');
-    const fileInput = document.getElementById('fileInput');
-
-    uploadArea.addEventListener('dragover', (e) => {
-        e.preventDefault();
-        uploadArea.classList.add('dragover');
-    });
-
-    uploadArea.addEventListener('dragleave', () => {
-        uploadArea.classList.remove('dragover');
-    });
-
-    uploadArea.addEventListener('drop', (e) => {
-        e.preventDefault();
-        uploadArea.classList.remove('dragover');
-        const files = e.dataTransfer.files;
-        if (files.length > 0) {
-            handleFile(files[0]);
-        }
-    });
-
-    fileInput.addEventListener('change', (e) => {
-        if (e.target.files.length > 0) {
-            handleFile(e.target.files[0]);
-        }
-    });
-
-    function handleFile(file) {
-        // Validasi file
-        if (!file.type.startsWith('image/')) {
-            showError('File harus berupa gambar!');
-            return;
-        }
-
-        if (file.size > 5 * 1024 * 1024) {
-            showError('Ukuran file maksimal 5MB!');
-            return;
-        }
-
-        // Preview gambar
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            const imagePreview = document.getElementById('imagePreview');
-            imagePreview.innerHTML = `<img src="${e.target.result}" class="preview-image" alt="Preview">`;
-        };
-        reader.readAsDataURL(file);
-
-        // Proses OCR
-        processOCR(file);
-    }
-
-    function processOCR(file) {
-        const loadingMessage = document.getElementById('loadingMessage');
-        const resultBox = document.getElementById('resultBox');
-        const kirimBtn = document.getElementById('kirimBtn');
-
-        loadingMessage.innerHTML = '<div class="loading">Memproses gambar... Mohon tunggu...</div>';
-        resultBox.innerHTML = '';
-        kirimBtn.disabled = true;
-
-        Tesseract.recognize(
-            file,
-            'eng',
-            {
-                logger: m => {
-                    if (m.status === 'recognizing text') {
-                        const progress = Math.round(m.progress * 100);
-                        loadingMessage.innerHTML = `<div class="loading">Memproses gambar... ${progress}%</div>`;
-                    }
-                }
-            }
-        ).then(({ data: { text } }) => {
-            loadingMessage.innerHTML = '';
-            extractedText = text;
-            extractNumbers(text);
-        }).catch(err => {
-            loadingMessage.innerHTML = '';
-            showError('Gagal memproses gambar. Silakan coba lagi.');
-            console.error(err);
-        });
-    }
-
-    function extractNumbers(text) {
-        const resultBox = document.getElementById('resultBox');
-        const kirimBtn = document.getElementById('kirimBtn');
-
-        // Reset values
-        noMeter = '';
-        noG = '';
-
-        // Cari nomor meter (awalan 52205)
-        const meterRegex = /52205\d+/g;
-        const meterMatches = text.match(meterRegex);
-        if (meterMatches && meterMatches.length > 0) {
-            noMeter = meterMatches[0];
-        }
-
-        // Cari nomor G (awalan G54)
-        const gRegex = /G54\w+/g;
-        const gMatches = text.match(gRegex);
-        if (gMatches && gMatches.length > 0) {
-            noG = gMatches[0];
-        }
-
-        // Tampilkan hasil
-        let resultHTML = '<div class="result-box"><h3>Hasil Ekstraksi:</h3>';
+    <div class="container">
+        <h1>Permintaan CT</h1>
         
-        if (noMeter) {
-            resultHTML += `<div class="result-item"><strong>No Meter:</strong> ${noMeter}</div>`;
-        } else {
-            resultHTML += `<div class="result-item error">No Meter tidak ditemukan (harus diawali 52205)</div>`;
+        <div class="upload-area" id="upload-area">
+            <input type="file" id="image-upload" accept="image/*" style="display: none;">
+            <button id="upload-button">
+                <span class="camera-icon">&#128247;</span> Pilih Gambar
+            </button>
+            <p style="margin-top: 15px; color: #666;">Unggah gambar, Tunggu proses selesai .</p>
+        </div>
+
+        <div class="result-area" id="result-area" style="display: none;">
+            <h3>Pratinjau Pesan Anda</h3>
+            <pre id="preview-text"></pre>
+            <button id="send-wa-button">Kirim WhatsApp</button>
+        </div>
+        
+        <div class="image-preview" id="image-preview" style="display: none;">
+            <p id="ocr-status">Memproses...</p>
+            <img id="uploaded-image" src="" alt="Pratinjau Gambar Meteran">
+        </div>
+    </div>
+
+    <script src='https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js'></script>
+    <script>
+        const uploadButton = document.getElementById('upload-button');
+        const imageUpload = document.getElementById('image-upload');
+        const uploadArea = document.getElementById('upload-area');
+        const imagePreviewArea = document.getElementById('image-preview');
+        const uploadedImage = document.getElementById('uploaded-image');
+        const ocrStatus = document.getElementById('ocr-status');
+        const resultArea = document.getElementById('result-area');
+        const previewTextElement = document.getElementById('preview-text');
+        const sendWaButton = document.getElementById('send-wa-button');
+
+        uploadButton.addEventListener('click', () => {
+            imageUpload.click();
+        });
+
+        imageUpload.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    uploadedImage.src = e.target.result;
+                    uploadArea.style.display = 'none';
+                    imagePreviewArea.style.display = 'block';
+                    resultArea.style.display = 'none'; 
+                    performOCR(e.target.result);
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        async function performOCR(imagePath) {
+            ocrStatus.textContent = 'Memproses OCR...';
+            ocrStatus.style.display = 'block';
+            
+            try {
+                const { data: { text } } = await Tesseract.recognize(
+                    imagePath,
+                    'eng', 
+                    {
+                        logger: m => {
+                            if (m.status === 'recognizing text') {
+                                ocrStatus.textContent = `Memproses: ${Math.round(m.progress * 100)}%`;
+                            }
+                        }
+                    }
+                );
+
+                ocrStatus.textContent = 'Selesai!';
+                setTimeout(() => ocrStatus.style.display = 'none', 2000);
+
+                const meterNumber = findMeterNumber(text);
+                const gNumber = findGNumber(text);
+
+                const formattedText = `*FORMAT PERMINTAAN CLEAR TEMPER*\n\nID Pelanggan/Nomor  Meter :  ${meterNumber}\nNomor gangguan/PK : ${gNumber}\nKeterangan: kwh meter periksa.`;
+
+                previewTextElement.textContent = formattedText;
+                resultArea.style.display = 'block'; 
+
+                sendWaButton.onclick = () => {
+                    const encodedText = encodeURIComponent(formattedText);
+                    const waUrl = `https://wa.me/?text=${encodedText}`;
+                    window.open(waUrl, '_blank');
+                    
+                    setTimeout(() => {
+                        resetApp();
+                    }, 1000);
+                };
+
+            } catch (err) {
+                ocrStatus.textContent = 'Gagal memproses gambar. Coba lagi.';
+                console.error(err);
+                
+                setTimeout(() => {
+                    resetApp();
+                }, 3000);
+            }
         }
 
-        if (noG) {
-            resultHTML += `<div class="result-item"><strong>No G:</strong> ${noG}</div>`;
-        } else {
-            resultHTML += `<div class="result-item error">No G tidak ditemukan (harus diawali G54)</div>`;
+        function findMeterNumber(text) {
+            const regex = /52205\d{5,}/; 
+            const match = text.match(regex);
+            return match ? match[0] : 'Tidak Ditemukan';
         }
 
-        // Tampilkan teks yang diekstrak (untuk debugging)
-        resultHTML += `<details style="margin-top: 15px;">
-            <summary style="cursor: pointer; color: #666;">Lihat semua teks yang diekstrak</summary>
-            <div style="background: #f5f5f5; padding: 10px; margin-top: 10px; border-radius: 3px; font-family: monospace; font-size: 12px; white-space: pre-wrap;">${text}</div>
-        </details>`;
-
-        resultHTML += '</div>';
-        resultBox.innerHTML = resultHTML;
-
-        // Enable tombol kirim jika kedua nomor ditemukan
-        if (noMeter && noG) {
-            kirimBtn.disabled = false;
-            showSuccess('Nomor berhasil ditemukan! Anda dapat mengirim pesan sekarang.');
-        } else {
-            kirimBtn.disabled = true;
-        }
-    }
-
-    function kirimPesan() {
-        if (!noMeter || !noG) {
-            showError('Nomor meter dan nomor G harus ditemukan terlebih dahulu!');
-            return;
+        function findGNumber(text) {
+            const regex = /G\s*\d+/i;
+            const match = text.match(regex);
+            return match ? match[0] : 'Tidak Ditemukan';
         }
 
-        const pesan = `*FORMAT PERMINTAAN CLEAR TEMPER*
-ID Pelanggan/Nomor Meter: ${noMeter}
-Nomor gangguan/PK: ${noG}
-Keterangan: kwh meter periksa.`;
+        function resetApp() {
+            uploadArea.style.display = 'block';
+            imagePreviewArea.style.display = 'none';
+            resultArea.style.display = 'none';
+            ocrStatus.style.display = 'none'; 
+            uploadedImage.src = ''; 
+            imageUpload.value = null; 
+        }
 
-        const url = `https://wa.me/?text=${encodeURIComponent(pesan)}`;
-        window.open(url, '_blank');
-    }
+        document.addEventListener('DOMContentLoaded', () => {
+            ocrStatus.style.display = 'none';
+        });
 
-    function showError(message) {
-        const resultBox = document.getElementById('resultBox');
-        resultBox.innerHTML = `<div class="error">${message}</div>`;
-    }
-
-    function showSuccess(message) {
-        const resultBox = document.getElementById('resultBox');
-        const currentContent = resultBox.innerHTML;
-        resultBox.innerHTML = `<div class="success">${message}</div>` + currentContent;
-    }
-</script>
-
+    </script>
 </body>
 </html>
