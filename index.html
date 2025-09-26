@@ -4,327 +4,113 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Permintaan CT</title>
-    
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <!-- Memuat Tailwind CSS untuk styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Memuat Google Fonts untuk tampilan yang lebih baik -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --primary-bg: #f9f9f9;
-            --secondary-bg: #ffffff;
-            --text-color: #333333;
-            --accent-gold: #b8860b; /* DarkGoldenrod */
-            --button-dark: #222222;
-            --button-dark-hover: #000000;
-            --whatsapp-green: #25D366;
-            --whatsapp-green-hover: #128C7E;
-            --border-color: #e0e0e0;
-            --shadow-light: rgba(0, 0, 0, 0.08);
-            --shadow-medium: rgba(0, 0, 0, 0.15);
-        }
-
+        /* Menggunakan font Poppins sebagai default */
         body {
             font-family: 'Poppins', sans-serif;
-            background: linear-gradient(135deg, #f0f0f0 0%, #e0e0e0 100%);
-            color: var(--text-color);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-            line-height: 1.6;
         }
-
-        .container {
-            background-color: var(--secondary-bg);
-            padding: 35px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px var(--shadow-medium);
-            width: 90%;
-            max-width: 550px;
-            text-align: center;
-            position: relative;
-            overflow: hidden; 
+        /* Kustomisasi warna emas untuk border */
+        .border-gold-custom {
+            border-color: #FFD700; /* Kode warna emas */
         }
-
-        h1 {
-            color: var(--button-dark);
-            margin-bottom: 30px;
-            font-weight: 600;
-            font-size: 2.2em;
-            letter-spacing: 0.5px;
-            position: relative;
+        .focus\:border-gold-custom:focus {
+            border-color: #FFB700; /* Warna emas lebih gelap saat fokus */
         }
-
-        h1::after {
-            content: '';
-            display: block;
-            width: 60px;
-            height: 3px;
-            background-color: var(--accent-gold);
-            margin: 10px auto 0;
-            border-radius: 5px;
-        }
-
-        .upload-area {
-            border: 2px dashed var(--border-color);
-            padding: 50px 20px;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.4s ease-in-out;
-            margin-bottom: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 150px;
-        }
-
-        .upload-area:hover {
-            background-color: var(--primary-bg);
-            border-color: var(--accent-gold);
-            box-shadow: 0 5px 15px var(--shadow-light);
-        }
-        
-        /* CSS ini yang membuat tombol rata tengah */
-        #upload-button {
-            background-color: var(--button-dark);
-            color: #fff;
-            border: none;
-            padding: 15px 35px;
-            border-radius: 8px;
-            font-size: 1.1em;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background-color 0.3s ease, transform 0.2s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center; /* Rata tengah horizontal */
-            gap: 10px;
-            margin: 0 auto; /* Tambahan ini untuk rata tengah horizontal */
-        }
-
-        #upload-button:hover {
-            background-color: var(--button-dark-hover);
-            transform: translateY(-2px);
-        }
-        
-        .camera-icon {
-            font-size: 1.5em;
-            line-height: 1; 
-        }
-
-        .image-preview {
-            margin-top: 25px;
-            border: 1px solid var(--border-color);
-            padding: 15px;
-            border-radius: 10px;
-            position: relative;
-            background-color: var(--primary-bg);
-            box-shadow: 0 2px 8px var(--shadow-light);
-        }
-
-        #uploaded-image {
-            max-width: 100%;
-            height: auto;
-            border-radius: 8px;
-            display: block; 
-            margin: 0 auto;
-        }
-
-        #ocr-status {
-            position: absolute;
-            top: 15px;
-            left: 50%;
-            transform: translateX(-50%);
-            background-color: rgba(0, 0, 0, 0.75);
-            color: #fff;
-            padding: 8px 15px;
-            border-radius: 7px;
-            font-size: 0.9em;
-            font-weight: 400;
-            z-index: 10;
-            white-space: nowrap;
-            box-shadow: 0 2px 10px var(--shadow-medium);
-        }
-
-        .result-area {
-            margin-top: 25px;
-            padding: 20px;
-            background-color: var(--primary-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 10px;
-            box-shadow: 0 2px 8px var(--shadow-light);
-            display: none; 
-        }
-
-        .result-area h3 {
-            color: var(--button-dark);
-            margin-top: 0;
-            margin-bottom: 15px;
-            font-weight: 600;
-            font-size: 1.4em;
-        }
-
-        #preview-text {
-            background-color: var(--secondary-bg);
-            padding: 20px;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            white-space: pre-wrap;
-            text-align: left;
-            font-size: 0.95em;
-            color: var(--text-color);
-            word-break: break-word; 
-        }
-
-        #send-wa-button {
-            background-color: var(--whatsapp-green);
-            color: #fff;
-            border: none;
-            padding: 15px 35px;
-            border-radius: 8px;
-            font-size: 1.15em;
-            font-weight: 600;
-            cursor: pointer;
-            margin-top: 20px;
-            transition: background-color 0.3s ease, transform 0.2s ease;
-            box-shadow: 0 4px 10px rgba(37, 211, 102, 0.4);
-        }
-
-        #send-wa-button:hover {
-            background-color: var(--whatsapp-green-hover);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 15px rgba(18, 140, 126, 0.5);
+        .focus\:ring-gold-custom:focus {
+            --tw-ring-color: #FFD700; /* Warna ring saat fokus */
         }
     </style>
 </head>
-<body>
-    <div class="container">
-        <h1>Permintaan CT</h1>
-        
-        <div class="upload-area" id="upload-area">
-            <input type="file" id="image-upload" accept="image/*" style="display: none;">
-            <button id="upload-button">
-                <span class="camera-icon">&#128247;</span> Pilih Gambar
-            </button>
-            <p style="margin-top: 15px; color: #666;">Unggah gambar yang ada nomer idpel dan nomer G, Tunggu proses selesai .</p>
-        </div>
+<body class="bg-blue-50">
 
-        <div class="result-area" id="result-area" style="display: none;">
-            <h3>Pratinjau Pesan Anda</h3>
-            <pre id="preview-text"></pre>
-            <button id="send-wa-button">Kirim WhatsApp</button>
-        </div>
+    <!-- Kontainer utama untuk menengahkan konten -->
+    <div class="min-h-screen flex items-center justify-center p-4">
         
-        <div class="image-preview" id="image-preview" style="display: none;">
-            <p id="ocr-status">Memproses...</p>
-            <img id="uploaded-image" src="" alt="Pratinjau Gambar Meteran">
+        <!-- Card atau kartu utama aplikasi -->
+        <div class="bg-white w-full max-w-md p-8 rounded-2xl shadow-lg border-2 border-gold-custom">
+            
+            <!-- Judul Aplikasi -->
+            <div class="text-center mb-8">
+                <h1 class="text-3xl font-bold text-blue-800">Permintaan CT</h1>
+                <p class="text-gray-500 mt-2">Isi form untuk mengirim permintaan.</p>
+            </div>
+
+            <!-- Form Isian -->
+            <form id="requestForm" onsubmit="return false;">
+                <!-- Input untuk No Meter / ID Pelanggan -->
+                <div class="mb-5">
+                    <label for="no_meter" class="block mb-2 text-sm font-semibold text-blue-700">No. Meter / ID Pelanggan</label>
+                    <input type="number" id="no_meter" name="no_meter" class="w-full px-4 py-3 bg-white border-2 border-gold-custom rounded-lg focus:outline-none focus:ring-2 focus:ring-gold-custom focus:border-transparent transition" placeholder="Contoh: 53xxxxxx" required>
+                </div>
+
+                <!-- Input untuk Nomor Gangguan -->
+                <div class="mb-8">
+                    <label for="nomer_g" class="block mb-2 text-sm font-semibold text-blue-700">Nomor Gangguan / PK</label>
+                    <input type="text" id="nomer_g" name="nomer_g" class="w-full px-4 py-3 bg-white border-2 border-gold-custom rounded-lg focus:outline-none focus:ring-2 focus:ring-gold-custom focus:border-transparent transition" placeholder="Contoh: G2023xxxx" required>
+                </div>
+
+                <!-- Tombol Kirim WhatsApp -->
+                <button id="sendButton" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-4 rounded-lg flex items-center justify-center transition-transform transform hover:scale-105">
+                    <!-- Ikon WhatsApp menggunakan SVG -->
+                    <svg class="w-6 h-6 mr-3" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M20.52,3.48A11.91,11.91,0,0,0,12,0,12,12,0,0,0,1.46,18.54L0,24l5.46-1.45A12,12,0,0,0,12,24a12,12,0,0,0,12-12,11.91,11.91,0,0,0-3.48-8.52ZM12,21.82a9.82,9.82,0,0,1-5-1.45l-.36-.21-3.71,1,1-3.62-.23-.38a9.82,9.82,0,1,1,17.13-6,9.91,9.91,0,0,1-2.9,7.15A9.82,9.82,0,0,1,12,21.82Zm5.27-6.72c-.28-.14-1.65-.81-1.91-.91s-.45-.14-.64.14-.72.91-.88,1.09-.32.21-.6,0a7.84,7.84,0,0,1-2.88-1.77,8.83,8.83,0,0,1-2-2.46c-.19-.32,0-.49.13-.63s.28-.32.42-.53a1.5,1.5,0,0,0,.28-.47.5.5,0,0,0,0-.53c-.07-.14-.64-1.54-.88-2.1s-.48-.48-.64-.49h-.53a1,1,0,0,0-.72.32,3,3,0,0,0-1,2.46,4.31,4.31,0,0,0,1.08,3,9.4,9.4,0,0,0,4.16,3.68,5.4,5.4,0,0,0,2.68.8,3.24,3.24,0,0,0,2.1-1.45,2.54,2.54,0,0,0,.18-1.45C17.72,15.24,17.54,15.1,17.27,14.9Z"/>
+                    </svg>
+                    Kirim via WhatsApp
+                </button>
+            </form>
+
         </div>
     </div>
 
-    <script src='https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js'></script>
     <script>
-        const uploadButton = document.getElementById('upload-button');
-        const imageUpload = document.getElementById('image-upload');
-        const uploadArea = document.getElementById('upload-area');
-        const imagePreviewArea = document.getElementById('image-preview');
-        const uploadedImage = document.getElementById('uploaded-image');
-        const ocrStatus = document.getElementById('ocr-status');
-        const resultArea = document.getElementById('result-area');
-        const previewTextElement = document.getElementById('preview-text');
-        const sendWaButton = document.getElementById('send-wa-button');
+        // Mengambil elemen dari DOM
+        const sendButton = document.getElementById('sendButton');
+        const noMeterInput = document.getElementById('no_meter');
+        const nomerGInput = document.getElementById('nomer_g');
+        const requestForm = document.getElementById('requestForm');
 
-        uploadButton.addEventListener('click', () => {
-            imageUpload.click();
-        });
+        // Menambahkan event listener ke tombol kirim
+        sendButton.addEventListener('click', function() {
+            // Mengambil nilai dari setiap input dan menghapus spasi di awal/akhir
+            const noMeter = noMeterInput.value.trim();
+            const nomerG = nomerGInput.value.trim();
 
-        imageUpload.addEventListener('change', (event) => {
-            const file = event.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    uploadedImage.src = e.target.result;
-                    uploadArea.style.display = 'none';
-                    imagePreviewArea.style.display = 'block';
-                    resultArea.style.display = 'none'; 
-                    performOCR(e.target.result);
-                };
-                reader.readAsDataURL(file);
+            // Validasi sederhana: pastikan kolom tidak kosong
+            if (!noMeter || !nomerG) {
+                alert('Mohon isi semua kolom terlebih dahulu.');
+                return; // Menghentikan eksekusi jika ada kolom yang kosong
             }
-        });
 
-        async function performOCR(imagePath) {
-            ocrStatus.textContent = 'Memproses OCR...';
-            ocrStatus.style.display = 'block';
+            // Template pesan WhatsApp
+            const message = `*FORMAT PERMINTAAN CLEAR TEMPER*
+
+ID Pelanggan/Nomor Meter : ${noMeter}
+Nomor gangguan/PK : ${nomerG}
+Keterangan: kwh meter periksa.`;
+
+            // Meng-encode pesan agar sesuai format URL
+            const encodedMessage = encodeURIComponent(message);
+
+            // Membuat URL WhatsApp. Tanpa nomor telepon, WhatsApp akan meminta pengguna memilih kontak.
+            const whatsappUrl = `https://wa.me/?text=${encodedMessage}`;
             
-            try {
-                const { data: { text } } = await Tesseract.recognize(
-                    imagePath,
-                    'eng', 
-                    {
-                        logger: m => {
-                            if (m.status === 'recognizing text') {
-                                ocrStatus.textContent = `Memproses: ${Math.round(m.progress * 100)}%`;
-                            }
-                        }
-                    }
-                );
+            // Membuka WhatsApp di tab baru
+            window.open(whatsappUrl, '_blank');
+            
+            // Membersihkan kolom isian setelah tombol diklik
+            requestForm.reset();
 
-                ocrStatus.textContent = 'Selesai!';
-                setTimeout(() => ocrStatus.style.display = 'none', 2000);
-
-                const meterNumber = findMeterNumber(text);
-                const gNumber = findGNumber(text);
-
-                const formattedText = `*FORMAT PERMINTAAN CLEAR TEMPER*\n\nID Pelanggan/Nomor  Meter :  ${meterNumber}\nNomor gangguan/PK : ${gNumber}\nKeterangan: kwh meter periksa.`;
-
-                previewTextElement.textContent = formattedText;
-                resultArea.style.display = 'block'; 
-
-                sendWaButton.onclick = () => {
-                    const encodedText = encodeURIComponent(formattedText);
-                    const waUrl = `https://wa.me/?text=${encodedText}`;
-                    window.open(waUrl, '_blank');
-                    
-                    setTimeout(() => {
-                        resetApp();
-                    }, 1000);
-                };
-
-            } catch (err) {
-                ocrStatus.textContent = 'Gagal memproses gambar. Coba lagi.';
-                console.error(err);
-                
-                setTimeout(() => {
-                    resetApp();
-                }, 3000);
-            }
-        }
-
-        function findMeterNumber(text) {
-            const regex = /5220\d{5,}/; 
-            const match = text.match(regex);
-            return match ? match[0] : 'Tidak Ditemukan';
-        }
-
-        function findGNumber(text) {
-            const regex = /G\s*\d+/i;
-            const match = text.match(regex);
-            return match ? match[0] : 'Tidak Ditemukan';
-        }
-
-        function resetApp() {
-            uploadArea.style.display = 'block';
-            imagePreviewArea.style.display = 'none';
-            resultArea.style.display = 'none';
-            ocrStatus.style.display = 'none'; 
-            uploadedImage.src = ''; 
-            imageUpload.value = null; 
-        }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            ocrStatus.style.display = 'none';
+            // Mengembalikan fokus ke input pertama untuk kemudahan penggunaan
+            noMeterInput.focus();
         });
-
     </script>
 </body>
 </html>
+
+
