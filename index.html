@@ -10,6 +10,23 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Service Worker Registration -->
+    <script>
+        // Cek apakah browser mendukung service worker
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(function(registration) {
+                        console.log('ServiceWorker registered with scope:', registration.scope);
+                    })
+                    .catch(function(error) {
+                        console.log('ServiceWorker registration failed:', error);
+                    });
+            });
+        }
+    </script>
+    
     <style>
         /* Menggunakan font Poppins sebagai default */
         body {
@@ -25,6 +42,21 @@
         .focus\:ring-gold-custom:focus {
             --tw-ring-color: #FFD700; /* Warna ring saat fokus */
         }
+        
+        /* Styling untuk indikator online/offline */
+        #statusIndicator {
+            transition: all 0.3s ease;
+        }
+        
+        .offline-mode {
+            background-color: #fef3c7;
+            border-color: #f59e0b;
+        }
+        
+        .online-mode {
+            background-color: #d1fae5;
+            border-color: #10b981;
+        }
     </style>
 </head>
 <body class="bg-blue-50">
@@ -39,6 +71,16 @@
             <div class="text-center mb-8">
                 <h1 class="text-3xl font-bold text-blue-800">Permintaan CT</h1>
                 <p class="text-gray-500 mt-2">Isi form untuk mengirim permintaan.</p>
+                
+                <!-- Indikator Status Koneksi -->
+                <div id="statusIndicator" class="mt-4 px-4 py-2 rounded-lg text-sm font-medium hidden">
+                    <div class="flex items-center justify-center">
+                        <svg id="statusIcon" class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path id="statusIconPath" fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                        </svg>
+                        <span id="statusText">Sedang memeriksa koneksi...</span>
+                    </div>
+                </div>
             </div>
 
             <!-- Form Isian -->
@@ -61,9 +103,35 @@
                     <svg class="w-6 h-6 mr-3" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <path d="M20.52,3.48A11.91,11.91,0,0,0,12,0,12,12,0,0,0,1.46,18.54L0,24l5.46-1.45A12,12,0,0,0,12,24a12,12,0,0,0,12-12,11.91,11.91,0,0,0-3.48-8.52ZM12,21.82a9.82,9.82,0,0,1-5-1.45l-.36-.21-3.71,1,1-3.62-.23-.38a9.82,9.82,0,1,1,17.13-6,9.91,9.91,0,0,1-2.9,7.15A9.82,9.82,0,0,1,12,21.82Zm5.27-6.72c-.28-.14-1.65-.81-1.91-.91s-.45-.14-.64.14-.72.91-.88,1.09-.32.21-.6,0a7.84,7.84,0,0,1-2.88-1.77,8.83,8.83,0,0,1-2-2.46c-.19-.32,0-.49.13-.63s.28-.32.42-.53a1.5,1.5,0,0,0,.28-.47.5.5,0,0,0,0-.53c-.07-.14-.64-1.54-.88-2.1s-.48-.48-.64-.49h-.53a1,1,0,0,0-.72.32,3,3,0,0,0-1,2.46,4.31,4.31,0,0,0,1.08,3,9.4,9.4,0,0,0,4.16,3.68,5.4,5.4,0,0,0,2.68.8,3.24,3.24,0,0,0,2.1-1.45,2.54,2.54,0,0,0,.18-1.45C17.72,15.24,17.54,15.1,17.27,14.9Z"/>
                     </svg>
-                    Kirim via WhatsApp
+                    <span id="buttonText">Kirim via WhatsApp</span>
+                </button>
+                
+                <!-- Tombol Simpan untuk Offline Mode -->
+                <button id="saveButton" type="button" class="w-full mt-3 bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-3 px-4 rounded-lg flex items-center justify-center transition-transform transform hover:scale-105 hidden">
+                    <!-- Ikon Simpan untuk Offline -->
+                    <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/>
+                    </svg>
+                    <span id="saveButtonText">Simpan & Kirim Saat Online</span>
                 </button>
             </form>
+            
+            <!-- Notifikasi -->
+            <div id="notification" class="mt-4 p-4 rounded-lg hidden">
+                <div class="flex items-start">
+                    <svg id="notificationIcon" class="w-6 h-6 mr-3 mt-0.5" fill="currentColor" viewBox="0 0 20 20"></svg>
+                    <div>
+                        <h3 id="notificationTitle" class="font-bold"></h3>
+                        <p id="notificationMessage" class="text-sm mt-1"></p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Daftar Pesan Tertunda (Hanya tampil jika ada) -->
+            <div id="pendingMessagesContainer" class="mt-6 hidden">
+                <h3 class="font-bold text-blue-700 mb-2">Pesan Tertunda</h3>
+                <div id="pendingMessagesList" class="space-y-2 max-h-60 overflow-y-auto"></div>
+            </div>
 
         </div>
     </div>
@@ -71,22 +139,118 @@
     <script>
         // Mengambil elemen dari DOM
         const sendButton = document.getElementById('sendButton');
+        const saveButton = document.getElementById('saveButton');
         const noMeterInput = document.getElementById('no_meter');
         const nomerGInput = document.getElementById('nomer_g');
         const requestForm = document.getElementById('requestForm');
+        const statusIndicator = document.getElementById('statusIndicator');
+        const statusIcon = document.getElementById('statusIcon');
+        const statusIconPath = document.getElementById('statusIconPath');
+        const statusText = document.getElementById('statusText');
+        const buttonText = document.getElementById('buttonText');
+        const saveButtonText = document.getElementById('saveButtonText');
+        const notification = document.getElementById('notification');
+        const notificationIcon = document.getElementById('notificationIcon');
+        const notificationTitle = document.getElementById('notificationTitle');
+        const notificationMessage = document.getElementById('notificationMessage');
+        const pendingMessagesContainer = document.getElementById('pendingMessagesContainer');
+        const pendingMessagesList = document.getElementById('pendingMessagesList');
 
-        // Menambahkan event listener ke tombol kirim
-        sendButton.addEventListener('click', function() {
-            // Mengambil nilai dari setiap input dan menghapus spasi di awal/akhir
-            const noMeter = noMeterInput.value.trim();
-            const nomerG = nomerGInput.value.trim();
+        // Status koneksi
+        let isOnline = navigator.onLine;
+        let pendingMessages = JSON.parse(localStorage.getItem('pendingCTRequests') || '[]');
 
-            // Validasi sederhana: pastikan kolom tidak kosong
-            if (!noMeter || !nomerG) {
-                alert('Mohon isi semua kolom terlebih dahulu.');
-                return; // Menghentikan eksekusi jika ada kolom yang kosong
+        // Fungsi untuk memperbarui status koneksi
+        function updateOnlineStatus() {
+            isOnline = navigator.onLine;
+            
+            if (isOnline) {
+                // Tampilkan status online
+                statusIndicator.className = 'mt-4 px-4 py-2 rounded-lg text-sm font-medium online-mode';
+                statusIconPath.setAttribute('d', 'M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z');
+                statusText.textContent = 'Online - Siap mengirim';
+                
+                // Ganti tombol kirim
+                sendButton.classList.remove('hidden');
+                saveButton.classList.add('hidden');
+                buttonText.textContent = 'Kirim via WhatsApp';
+                
+                // Cek dan kirim pesan tertunda
+                checkAndSendPendingMessages();
+                
+            } else {
+                // Tampilkan status offline
+                statusIndicator.className = 'mt-4 px-4 py-2 rounded-lg text-sm font-medium offline-mode';
+                statusIconPath.setAttribute('d', 'M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z');
+                statusText.textContent = 'Offline - Simpan untuk dikirim nanti';
+                
+                // Ganti tombol untuk mode offline
+                sendButton.classList.add('hidden');
+                saveButton.classList.remove('hidden');
+                saveButtonText.textContent = `Simpan (${pendingMessages.length} tertunda)`;
             }
+            
+            // Tampilkan indikator status
+            statusIndicator.classList.remove('hidden');
+            
+            // Perbarui daftar pesan tertunda
+            updatePendingMessagesList();
+        }
 
+        // Fungsi untuk menampilkan notifikasi
+        function showNotification(type, title, message) {
+            // Reset notifikasi
+            notification.className = 'mt-4 p-4 rounded-lg';
+            
+            if (type === 'success') {
+                notification.classList.add('bg-green-100', 'text-green-800', 'border', 'border-green-200');
+                notificationIcon.setAttribute('d', 'M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z');
+            } else if (type === 'error') {
+                notification.classList.add('bg-red-100', 'text-red-800', 'border', 'border-red-200');
+                notificationIcon.setAttribute('d', 'M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V7z');
+            } else if (type === 'warning') {
+                notification.classList.add('bg-yellow-100', 'text-yellow-800', 'border', 'border-yellow-200');
+                notificationIcon.setAttribute('d', 'M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z');
+            }
+            
+            notificationTitle.textContent = title;
+            notificationMessage.textContent = message;
+            notification.classList.remove('hidden');
+            
+            // Sembunyikan notifikasi setelah 5 detik
+            setTimeout(() => {
+                notification.classList.add('hidden');
+            }, 5000);
+        }
+
+        // Fungsi untuk menyimpan pesan ke localStorage
+        function saveMessage(noMeter, nomerG) {
+            const messageData = {
+                noMeter: noMeter,
+                nomerG: nomerG,
+                timestamp: new Date().toISOString(),
+                status: 'pending'
+            };
+            
+            // Tambahkan ke array pesan tertunda
+            pendingMessages.push(messageData);
+            
+            // Simpan ke localStorage
+            localStorage.setItem('pendingCTRequests', JSON.stringify(pendingMessages));
+            
+            // Tampilkan notifikasi
+            showNotification('success', 'Berhasil Disimpan!', 'Permintaan CT telah disimpan dan akan dikirim saat online.');
+            
+            // Reset form
+            requestForm.reset();
+            noMeterInput.focus();
+            
+            // Perbarui UI
+            updateOnlineStatus();
+        }
+
+        // Fungsi untuk mengirim pesan langsung
+        function sendMessageImmediately(noMeter, nomerG) {
             // Template pesan WhatsApp
             const message = `*FORMAT PERMINTAAN CLEAR TEMPER*
 
@@ -103,14 +267,203 @@ Keterangan: kwh meter periksa.`;
             // Membuka WhatsApp di tab baru
             window.open(whatsappUrl, '_blank');
             
-            // Membersihkan kolom isian setelah tombol diklik
+            // Reset form
             requestForm.reset();
-
-            // Mengembalikan fokus ke input pertama untuk kemudahan penggunaan
             noMeterInput.focus();
+        }
+
+        // Fungsi untuk mengirim pesan yang tertunda
+        function sendPendingMessage(messageData, index) {
+            const message = `*FORMAT PERMINTAAN CLEAR TEMPER*
+
+ID Pelanggan/Nomor Meter : ${messageData.noMeter}
+Nomor gangguan/PK : ${messageData.nomerG}
+Keterangan: kwh meter periksa.
+(Terkirim otomatis saat online)`;
+
+            const encodedMessage = encodeURIComponent(message);
+            const whatsappUrl = `https://wa.me/?text=${encodedMessage}`;
+            
+            // Buka WhatsApp
+            const newWindow = window.open(whatsappUrl, '_blank');
+            
+            // Tandai sebagai terkirim
+            if (newWindow) {
+                pendingMessages[index].status = 'sent';
+                pendingMessages[index].sentAt = new Date().toISOString();
+                localStorage.setItem('pendingCTRequests', JSON.stringify(pendingMessages));
+                
+                // Hapus dari daftar setelah beberapa detik (asumsi terkirim)
+                setTimeout(() => {
+                    pendingMessages = pendingMessages.filter((_, i) => i !== index);
+                    localStorage.setItem('pendingCTRequests', JSON.stringify(pendingMessages));
+                    updatePendingMessagesList();
+                }, 3000);
+            }
+        }
+
+        // Fungsi untuk memeriksa dan mengirim pesan tertunda
+        function checkAndSendPendingMessages() {
+            if (pendingMessages.length > 0 && isOnline) {
+                showNotification('info', 'Mengirim Pesan Tertunda', `Ada ${pendingMessages.length} pesan yang akan dikirim.`);
+                
+                // Kirim pesan tertunda satu per satu dengan jeda
+                pendingMessages.forEach((message, index) => {
+                    if (message.status === 'pending') {
+                        setTimeout(() => {
+                            sendPendingMessage(message, index);
+                        }, index * 2000); // Jeda 2 detik antar pesan
+                    }
+                });
+            }
+        }
+
+        // Fungsi untuk memperbarui daftar pesan tertunda
+        function updatePendingMessagesList() {
+            if (pendingMessages.length > 0) {
+                pendingMessagesContainer.classList.remove('hidden');
+                pendingMessagesList.innerHTML = '';
+                
+                pendingMessages.forEach((message, index) => {
+                    const date = new Date(message.timestamp);
+                    const timeString = date.toLocaleTimeString('id-ID', { 
+                        hour: '2-digit', 
+                        minute: '2-digit',
+                        day: '2-digit',
+                        month: 'short'
+                    });
+                    
+                    const messageElement = document.createElement('div');
+                    messageElement.className = 'bg-gray-50 p-3 rounded-lg border border-gray-200';
+                    messageElement.innerHTML = `
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="font-medium text-sm">ID: ${message.noMeter}</p>
+                                <p class="text-xs text-gray-500">PK: ${message.nomerG}</p>
+                                <p class="text-xs text-gray-400 mt-1">${timeString}</p>
+                            </div>
+                            <div class="flex space-x-2">
+                                <button onclick="sendSingleMessage(${index})" class="text-green-600 hover:text-green-800 text-sm font-medium">
+                                    Kirim
+                                </button>
+                                <button onclick="removePendingMessage(${index})" class="text-red-600 hover:text-red-800 text-sm font-medium">
+                                    Hapus
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                    
+                    pendingMessagesList.appendChild(messageElement);
+                });
+            } else {
+                pendingMessagesContainer.classList.add('hidden');
+            }
+        }
+
+        // Fungsi global untuk mengirim pesan tunggal (dipanggil dari onclick)
+        window.sendSingleMessage = function(index) {
+            if (isOnline && pendingMessages[index]) {
+                sendPendingMessage(pendingMessages[index], index);
+            } else {
+                showNotification('warning', 'Tidak Dapat Mengirim', 'Anda sedang offline atau pesan tidak ditemukan.');
+            }
+        };
+
+        // Fungsi global untuk menghapus pesan tertunda
+        window.removePendingMessage = function(index) {
+            if (confirm('Apakah Anda yakin ingin menghapus pesan ini?')) {
+                pendingMessages.splice(index, 1);
+                localStorage.setItem('pendingCTRequests', JSON.stringify(pendingMessages));
+                updatePendingMessagesList();
+                updateOnlineStatus();
+                showNotification('info', 'Pesan Dihapus', 'Pesan tertunda telah dihapus.');
+            }
+        };
+
+        // Event listener untuk tombol kirim (online)
+        sendButton.addEventListener('click', function() {
+            const noMeter = noMeterInput.value.trim();
+            const nomerG = nomerGInput.value.trim();
+
+            if (!noMeter || !nomerG) {
+                showNotification('error', 'Form Tidak Lengkap', 'Mohon isi semua kolom terlebih dahulu.');
+                return;
+            }
+
+            if (isOnline) {
+                sendMessageImmediately(noMeter, nomerG);
+            } else {
+                showNotification('warning', 'Sedang Offline', 'Anda sedang offline. Pesan akan disimpan untuk dikirim nanti.');
+                saveMessage(noMeter, nomerG);
+            }
         });
+
+        // Event listener untuk tombol simpan (offline)
+        saveButton.addEventListener('click', function() {
+            const noMeter = noMeterInput.value.trim();
+            const nomerG = nomerGInput.value.trim();
+
+            if (!noMeter || !nomerG) {
+                showNotification('error', 'Form Tidak Lengkap', 'Mohon isi semua kolom terlebih dahulu.');
+                return;
+            }
+
+            saveMessage(noMeter, nomerG);
+        });
+
+        // Event listener untuk perubahan status koneksi
+        window.addEventListener('online', updateOnlineStatus);
+        window.addEventListener('offline', updateOnlineStatus);
+
+        // Event listener untuk form submit (mencegah reload)
+        requestForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Pilih tindakan berdasarkan status koneksi
+            if (isOnline) {
+                sendButton.click();
+            } else {
+                saveButton.click();
+            }
+        });
+
+        // Inisialisasi saat halaman dimuat
+        document.addEventListener('DOMContentLoaded', function() {
+            updateOnlineStatus();
+            
+            // Periksa dan kirim pesan tertunda jika online
+            setTimeout(() => {
+                checkAndSendPendingMessages();
+            }, 1000);
+        });
+
+        // Tambahkan tombol untuk menghapus semua pesan tertunda
+        const clearAllButton = document.createElement('button');
+        clearAllButton.id = 'clearAllButton';
+        clearAllButton.className = 'w-full mt-2 bg-red-100 hover:bg-red-200 text-red-700 font-medium py-2 px-4 rounded-lg text-sm hidden';
+        clearAllButton.textContent = 'Hapus Semua Pesan Tertunda';
+        clearAllButton.onclick = function() {
+            if (confirm(`Apakah Anda yakin ingin menghapus semua ${pendingMessages.length} pesan tertunda?`)) {
+                pendingMessages = [];
+                localStorage.removeItem('pendingCTRequests');
+                updatePendingMessagesList();
+                updateOnlineStatus();
+                showNotification('info', 'Semua Pesan Dihapus', 'Semua pesan tertunda telah dihapus.');
+            }
+        };
+        
+        pendingMessagesContainer.parentNode.insertBefore(clearAllButton, pendingMessagesContainer.nextSibling);
+
+        // Perbarui fungsi updatePendingMessagesList untuk menampilkan tombol hapus semua
+        const originalUpdatePendingMessagesList = updatePendingMessagesList;
+        updatePendingMessagesList = function() {
+            originalUpdatePendingMessagesList();
+            if (pendingMessages.length > 0) {
+                clearAllButton.classList.remove('hidden');
+            } else {
+                clearAllButton.classList.add('hidden');
+            }
+        };
     </script>
 </body>
-</html>
-
-
+                        </html>
